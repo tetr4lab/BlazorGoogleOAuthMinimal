@@ -1,5 +1,6 @@
 ﻿@page "/counter"
 @rendermode InteractiveAuto
+@inject ILogger<Counter> Logger
 
 <PageTitle>Counter</PageTitle>
 
@@ -14,6 +15,7 @@
 
     private void IncrementCount()
     {
+        Logger.LogInformation ($"count {currentCount} => {currentCount + 1}");
         currentCount++;
     }
 }

@@ -1,0 +1,22 @@
+﻿@page "/Account/AccessDenied"
+@attribute [AllowAnonymous]
+
+<PageTitle>AccessDenied</PageTitle>
+
+<AuthorizeView>
+    <Authorized><h1>@(identity?.Name ?? "World")さん、こんにちは</h1></Authorized>
+    <NotAuthorized><h1>Googleアカウントに<a href="https://accounts.google.com/ServiceLogin" target="_blank">ログイン</a>してください。</h1></NotAuthorized>
+</AuthorizeView>
+<AuthorizeView Policy="Users">
+    <Authorized><p>あなたは、承認されたユーザです。</p></Authorized>
+    <NotAuthorized><p>残念ながら、あなたは、承認されていません。</p></NotAuthorized>
+</AuthorizeView>
+<AuthorizeView Policy="Admin">
+    <Authorized><p>あなたは、管理者です。</p></Authorized>
+</AuthorizeView>
+
+@code {
+    [CascadingParameter] protected Task<AuthenticationState> AuthState { get; set; } = null!;
+    private System.Security.Principal.IIdentity? identity = null;
+    protected override async Task OnInitializedAsync () => identity = (AuthState != null) ? (await AuthState).User?.Identity : null;
+}

@@ -2,6 +2,16 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Hello, @(identity?.Name ?? "World")</h1>
+<p>Welcome to your new app.</p>
+<DumpIdentity Identity="identity" />
+<AuthorizeView Policy="Admin">
+    <Authorized><p>あなたは、管理者です。</p></Authorized>
+    <NotAuthorized><p>あなたは、一般ユーザです。</p></NotAuthorized>
+</AuthorizeView>
 
-Welcome to your new app.
+@code {
+    [CascadingParameter] protected Task<AuthenticationState> authState { get; set; } = null!;
+    private System.Security.Claims.ClaimsIdentity? identity = null;
+    protected override async Task OnInitializedAsync () => identity = (authState != null) ? (await authState).User?.Identity as System.Security.Claims.ClaimsIdentity : null;
+}

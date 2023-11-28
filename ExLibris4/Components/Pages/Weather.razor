@@ -1,5 +1,6 @@
 ﻿@page "/weather"
 @attribute [StreamRendering]
+@inject ILogger<Weather> Logger
 
 <PageTitle>Weather</PageTitle>
 
@@ -52,6 +53,7 @@ else
             TemperatureC = Random.Shared.Next(-20, 55),
             Summary = summaries[Random.Shared.Next(summaries.Length)]
         }).ToArray();
+        Logger.LogInformation("Weather initialized.");
     }
 
     private class WeatherForecast

@@ -1,17 +1,20 @@
 ﻿---
-title: Blazor in ASP.NET 8.0  (4)
+title: Blazor Web App in ASP.NET 8.0  (4)
 tags: Blazor MudBlazor .NET MariaDB
 ---
 # Blazor in ASP.NET 8.0 (4)
 
 ## はじめに
-- この記事では、シンプルなBlazor Serverアプリを作ってみます。
-    - アプリでは、Entity Framework Coreを使ってSQLiteのデータを扱います。
+- この記事では、シンプルなBlazor Web Appを作ってみます。
+    - MySqlConnectorとDapperを使ってMariaDBのデータを扱います。
+        - EF Coreは使いません。
+    - Microsoft.AspNetCore.Authentication.Googleを使って認証を行います。
+        - Microsoft.AspNetCore.Identityは使いません。
 - この記事では、以下のような読者像を想定しています。
     - C#と.NETを囓っている
     - 一般的なMVCを知っている
     - データベースのスキーマとSQLになじみがある
-    - Blazor Serverアプリのチュートリアルを済ませた
+    - Blazorのチュートリアルを済ませた
 - この記事ではツール類の使用方法には言及しません。
 - 「(1)~(3)はどこ?」 ⇒ ごめんなさい、公開されていません。
 
@@ -19,9 +22,9 @@ tags: Blazor MudBlazor .NET MariaDB
 - Windows 11
 - VisualStudio 2022 17.8
 - .NET 8.0
-- connector
-- dapper
-- MudBlazor 6.11.0
+- MySqlConnector 2.3.1
+- dapper 2.1.24
+- MudBlazor 6.11.1
 - MySql 8.0.35 ubuntu
 - MariaDB 15.1 debian
 
@@ -30,21 +33,9 @@ tags: Blazor MudBlazor .NET MariaDB
 - 書籍と著者は多対多の関係で、中間テーブルが使われます。
 
 ### ホスティングモデル
-#### Server
-- サーバの負荷が高いです。
-    - 小規模でユーザの少ないシステムであれば問題ありません。
-- EF CoreのO/Rマッパーを使ってオブジェクトのままで操作が可能です。
+- オンプレミスな ASP.NET Core サーバを使います。
 
-#### Server + WASM
-- サーバの負荷をクライアント側に分散できます。
-- サーバ-クライアント間でのやりとり(WebAPI)にはjsonシリアライズが必要ですが、モデルに循環参照があるため、単純にjsonシリアライズできません。
-    - 無理にサーバとクライアントで一貫処理しようとせず、サーバ側は汎用のWebAPI (REST api with DTO)としてきちんと設計する必要がありそうです。
-        - 参考: [データ転送オブジェクトの作成](https://learn.microsoft.com/ja-jp/aspnet/web-api/overview/data/using-web-api-with-entity-framework/part-5)
-
-#### 選択
-- このプロジェクトは小規模なシステムなのでServerモデル一択です。
-- サーバ・クライアント間のやりとりが不要になるので、jsonを介すようなことをせずに、エンティティを直接扱えます。
-- シンプルなモデルを直接使えるので、直感的で使いやすいです。
+[Windows から Blazor Web App をデプロイする Debian Server の構成]() (Qiita)
 
 ### 非対応事項
 #### 排他制御
@@ -55,12 +46,105 @@ tags: Blazor MudBlazor .NET MariaDB
 - このプロジェクトではアカウント管理や認証を行いません。
 - 単なる実証実験、あるいは、ローカルネットワーク内で、1人で使うことを想定しています。
 
-### UIフレームワーク (MudBlazor)
-#### 概要
+## プロジェクトの構成
+- VisualStudioで新規「Blazor Web App」プロジェクトを以下の想定で作ります。
+    - フレームワークは`.NET 8.0`にします。
+    - 認証の種類は「なし」にします。
+        - 「個別のアカウント」にすると、ローカルSQLサーバーが導入されます。
+    - HTTPS用の構成にします。
+    - `Interactive render mode`は`Auto(Server and WebAssembly)`にします。
+    - `Interactivity location`は`Per page/component`にします。
+    - プロジェクト名を`ExLibris4`とします。
+    - ソリューションをプロジェクトと同じディレクトリに配置します。
+- NuGetパッケージマネージャーで以下を導入します。
+    - 導入対象
+        - `Microsoft.AspNetCore.Authentication.Google`
+        - `MySqlConnector`
+        - `Dapper`
+    - コンソールを使う場合は`dotnet add package 《パッケージ名》`とします。
+
+## SNS認証 (Google OAuth)
+### 準備
+#### トークン生成
+- `Google Cloud Platform` > メニュー > `API とサービス` > `認証情報` > `プロジェクトを選択`プルダウン > `新しいプロジェクト` > `作成`
+- `OAuth consent screen` > `外部` > `作成`
+    - `テストユーザー`に使用者のアカウントを追加します。
+- `認証情報` > `+ 認証情報を作成` > `承認済みのリダイレクト URI` > `https://localhost:<port>/signin-google` > `保存`
+    - `<port>`は`launchSettings.json`に記述があります。
+    - パブリッシュ後のポートは`http`が`5000`、`https`が`5001`です。
+    - `クライアント ID`と`クライアント シークレット`を取得します。
+
+https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-8.0
+
+#### クライアント ID とシークレットをシークレット ストレージに格納
+
+```powershell
+PM> dotnet user-secrets set "Authentication:Google:ClientId" "<client-id>"
+PM> dotnet user-secrets set "Authentication:Google:ClientSecret" "<client-secret>"
+```
+
+- ストレージの初期化が必要な場合があります。
+
+```powershell
+PM> dotnet user-secrets init
+```
+
+https://learn.microsoft.com/ja-jp/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=windows#enable-secret-storage
+
+### 導入
+- NuGetパッケージマネージャーで以下を導入します。
+    - 導入対象
+        - `Microsoft.AspNetCore.Authentication.Google`
+
+### 構成
+- `Program.cs`に以下を加えます。
+
+```csharp:Program.cs
+// ~ ~ ~
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+// ~ ~ ~
+builder.Services.AddAuthentication (options => {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddCookie ()
+    .AddGoogle (googleOptions => {
+        googleOptions.ClientId = builder.Configuration ["Authentication:Google:ClientId"]!;
+        googleOptions.ClientSecret = builder.Configuration ["Authentication:Google:ClientSecret"]!;
+    });
+// ~ ~ ~
+app.UseAuthentication ();
+app.UseAuthorization ();
+// ~ ~ ~
+```
+
+- `_Imports.razor`に以下を加えます。
+
+```razor:_Imports.razor
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authorization
+```
+
+- 認可対象の`<page>.razor`に`Authorize`属性を加えます。
+
+```razotor
+@page "/<page>"
+@attribute [Authorize]
+```
+
+https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/social-without-identity?view=aspnetcore-8.0
+
+### 検証
+- ログアウトを実装しない場合に簡易な検証方法として、GCPコンソールでリダイレクトURIから対応ポートを削除する方法が考えられます。
+
+
+## UIフレームワーク (MudBlazor)
+### 概要
 - MudBlazorは、数あるBlazor用のUIフレームワークの一つです。
 - C#でコントロールしやすいように作られていて、.NETプログラマには使いやすいです。
 
-#### 導入
+### 導入
 - 公式サイトのインストールページを確認し、既存のプロジェクトに導入する場合は「Manual Install」に従って作業します。
     - [Installation](https://mudblazor.com/getting-started/installation#online-playground)
         - このプロジェクトでは、手動インストールを採用しました。
@@ -118,7 +202,7 @@ builder.Services.AddMudServices();
 <MudSnackbarProvider/>
 ```
 
-#### 起動時オプションの構成
+### 起動時オプションの構成
 - 起動時オプションを追加します。
     - このプロジェクトでは、スナックバーのデフォルトを設定しています。
 
@@ -134,22 +218,6 @@ builder.Services.AddMudServices (config => {
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
 ```
-
-### プロジェクトの構成
-- VisualStudioで新規「Blazor Server アプリ」プロジェクトを以下の想定で作ります。
-    - プロジェクト名を`ExLibris`とします。
-    - ソリューションをプロジェクトと同じディレクトリに配置します。
-    - 「.NET 7.0」にします。
-    - 認証の種類は「なし」にします。
-        - 「個別のアカウント」にすると、ローカルSQLサーバーが導入されます。
-    - HTTPS用の構成にします。
-- NuGetパッケージマネージャーで以下を導入します。
-    - 導入対象
-        - `Microsoft.EntityFrameworkCore`
-        - `Microsoft.EntityFrameworkCore.Tools`
-        - `Microsoft.EntityFrameworkCore.Design`
-        - `Pomelo.EntityFrameworkCore.MySql`
-    - コンソールを使う場合は`dotnet add package 《パッケージ名》`とします。
 
 ## データベースの構成
 ### データベースの基礎設計
