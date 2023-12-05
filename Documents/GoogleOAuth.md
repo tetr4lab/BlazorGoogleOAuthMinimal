@@ -52,10 +52,11 @@ tags: Blazor .NET OAuth GoogleOAuth2
 - `OAuth consent screen` > `外部` > `作成`
     - 必要に応じて、`テストユーザー`に使用者のアカウントを追加します。
 - `認証情報` > `+ 認証情報を作成` > `承認済みのリダイレクト URI`
-    - `https://localhost:<port>/signin-google` > `保存`
+    - `https://localhost:<port>/signin-google`
         - 開発時のポートは`launchSettings.json`に記述があります。
-    - `URI を追加` > `https://<server>.<domain>/signin-google` > `保存`
+    - `URI を追加` > `https://<server>.<domain>/signin-google`
         - 本番のポートはデフォルト(433)なので指定しません。
+    - `URI を追加` > `http://<server>.<domain>/signin-google` > `保存`
 - `クライアント ID`と`クライアント シークレット`を取得します。
 
 https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-8.0
@@ -78,7 +79,12 @@ PM> dotnet user-secrets init
 ```powershell:パッケージマネージャコンソール
 PM> dotnet user-secrets set "Authentication:Google:ClientId" "<client-id>"
 PM> dotnet user-secrets set "Authentication:Google:ClientSecret" "<client-secret>"
+PM> dotnet user-secrets set "Identity:Claims:EmailAddress:Admin:0" "<admin-mailaddress-0>"
+PM> dotnet user-secrets set "Identity:Claims:EmailAddress:User:0" "<user-mailaddress-0>"
+PM> dotnet user-secrets set "Identity:Claims:EmailAddress:User:1" "<user-mailaddress-1>"
 ```
+
+- 後半のメールアドレスは、認可ポリシーに使います。
 
 #### ストレージの参照
 
@@ -88,18 +94,15 @@ PM> dotnet user-secrets set "Authentication:Google:ClientSecret" "<client-secret
 #### ストレージの直接編集
 - ソリューション エクスプローラでプロジェクトのコンテキストメニューから「ユーザーシークレットの管理」を選びます。
 
-### 環境変数に格納
-- 本番時に環境変数で保持する場合は、以下のように`:`を`__`に置換します。
-- この格納状態は一時的なもので、永続化されていません。
-
-```shell:bash
-$ export Authentication__Google__ClientId="<client-id>"
-$ export Authentication__Google__ClientSecret="<client-secret>"
+```json:appsettings.json
+    "Authentication:Google:ClientId": "<client-id>",
+    "Authentication:Google:ClientSecret": "<client-secret>",
+    "Identity:Claims:EmailAddress:Admin:0": "<admin-mailaddress-0>",
+    "Identity:Claims:EmailAddress:User:0": "<user-mailaddress-0>",
+    "Identity:Claims:EmailAddress:User:1": "<user-mailaddress-1>"
 ```
 
-### ソースコードに格納
-- 開発・本番とも、`appsettings.json`で保持する場合は、以下のようになります。
-- 共有しないように注意が必要です。
+- 上記は畳み込まれていますが、以下のようにも書けます。というか、こちらが本来の形式です。
 
 ```json:appsettings.json
     "Authentication": {
@@ -108,8 +111,39 @@ $ export Authentication__Google__ClientSecret="<client-secret>"
             "ClientSecret": "<client-secret>"
         }
     },
-
+    "Identity": {
+        "Claims": {
+            "EmailAddress": {
+                "Admin": [
+                    "<admin-mailaddress-0>"
+                ],
+                "User": [
+                    "<user-mailaddress-0>",
+                    "<user-mailaddress-1>"
+                ]
+            }
+        }
+    },
 ```
+
+- 配列`<array>: [ "value0", "value1" ]`は、`"<array>:0":"<value0>", "<array>:1":"<value1>"`と等価です。
+
+### ソースコードに格納
+- 共有されても支障の無い情報であれば、シークレット・ストレージと同じ形式で、開発・本番とも、`appsettings.json`で保持することが可能です。
+
+### 環境変数に格納
+- 本番時に環境変数で保持する場合は、以下のように`:`を`__`に置換します。
+- この格納状態は一時的なもので、永続化されていません。
+
+```shell:bash
+$ export Authentication__Google__ClientId='<client-id>'
+$ export Authentication__Google__ClientSecret='<client-secret>'
+$ export Identity__Claims__EmailAddress__Admin__0='<admin-mailaddress-0>'
+$ export Identity__Claims__EmailAddress__User__0='<user-mailaddress-0>'
+$ export Identity__Claims__EmailAddress__User__1='<user-mailaddress-1>'
+```
+
+https://learn.microsoft.com/ja-jp/dotnet/core/extensions/configuration-providers#command-line-configuration-provider
 
 ## サーバ側アプリの構成
 ### 起動の構成
@@ -298,6 +332,10 @@ https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize (Policy = "Users")]
 ```
+
+## 留意点
+- ブラウザでアカウントからログアウトしても、たとえアカウントを切り替えても、元のセッションが有効な間は最初のアカウントでログインしたままになります。
+- いったんブラウザを閉じて開き直すと、リセットされます。
 
 ## おわりに
 - 執筆者は、Blazor、ASP.NETともに初学者ですので、誤りもあるかと思います。
