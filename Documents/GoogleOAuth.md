@@ -133,14 +133,43 @@ PM> dotnet user-secrets set "Identity:Claims:EmailAddress:User:1" "<user-mailadd
 
 ### 環境変数に格納
 - 本番時に環境変数で保持する場合は、以下のように`:`を`__`に置換します。
-- この格納状態は一時的なもので、永続化されていません。
+- この格納状態は一時的なものです。
+    - 永続化する場合は`.bashrc`に設定します。
 
-```shell:bash
+```bash:bash
 $ export Authentication__Google__ClientId='<client-id>'
 $ export Authentication__Google__ClientSecret='<client-secret>'
 $ export Identity__Claims__EmailAddress__Admin__0='<admin-mailaddress-0>'
 $ export Identity__Claims__EmailAddress__User__0='<user-mailaddress-0>'
 $ export Identity__Claims__EmailAddress__User__1='<user-mailaddress-1>'
+```
+
+- サービス化する場合は`.conf`に設定できます。
+
+```ini:~.conf
+[Service]
+#~ ~ ~
+Environment=Authentication__Google__ClientId='<client-id>'
+Environment=Authentication__Google__ClientSecret='<client-secret>'
+Environment=Identity__Claims__EmailAddress__Admin__0='<admin-mailaddress-0>'
+Environment=Identity__Claims__EmailAddress__User__0='<user-mailaddress-0>'
+Environment=Identity__Claims__EmailAddress__User__1='<user-mailaddress-1>'
+```
+
+- 以下のようにすることもできます。
+
+```ini:~.conf
+[Service]
+#~ ~ ~
+EnvironmentFile=<path>
+```
+
+```bash:<path>
+Authentication__Google__ClientId='<client-id>'
+Authentication__Google__ClientSecret='<client-secret>'
+Identity__Claims__EmailAddress__Admin__0='<admin-mailaddress-0>'
+Identity__Claims__EmailAddress__User__0='<user-mailaddress-0>'
+Identity__Claims__EmailAddress__User__1='<user-mailaddress-1>'
 ```
 
 https://learn.microsoft.com/ja-jp/dotnet/core/extensions/configuration-providers#command-line-configuration-provider
