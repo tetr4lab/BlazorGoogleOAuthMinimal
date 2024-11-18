@@ -1,10 +1,17 @@
 ﻿@page "/counter"
-@rendermode InteractiveAuto
+@rendermode InteractiveWebAssembly
+
 @inject ILogger<Counter> Logger
 
 <PageTitle>Counter</PageTitle>
 
 <h1>Counter</h1>
+
+<p>
+    running on @(OperatingSystem.IsBrowser() ? "browser" : "server").<br />
+    rendered on @(System.OperatingSystem.IsLinux() ? "linux" : "not linux").<br />
+    rendered on @(System.OperatingSystem.IsWindows() ? "windows" : "not windows").
+</p>
 
 <p role="status">Current count: @currentCount</p>
 
