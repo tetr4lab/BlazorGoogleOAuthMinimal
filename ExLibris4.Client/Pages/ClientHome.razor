@@ -1,11 +1,16 @@
-﻿@page "/counter"
+﻿@using System.Net.Http
+@using ExLibris4.Weather
+
+@page "/client"
 @rendermode InteractiveWebAssembly
 
-@inject ILogger<Counter> Logger
+@inject ILogger<ClientHome> Logger
+@inject NavigationManager Navigation
+@inject HttpClient HttpClient
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>ClientHome</PageTitle>
 
-<h1>Counter</h1>
+<h1>ClientHome</h1>
 
 <p>
     running on @(OperatingSystem.IsBrowser() ? "browser" : "server").<br />
@@ -15,14 +20,63 @@
 
 <p role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p>This component demonstrates showing data.</p>
+    <button class="btn btn-primary" @onclick="IncrementCount">Update</button>
+}
 
 @code {
-    private int currentCount = 0;
+    protected int currentCount = 0;
 
-    private void IncrementCount()
+    protected async Task IncrementCount()
     {
-        Logger.LogInformation ($"count {currentCount} => {currentCount + 1}");
+        Logger.LogInformation($"count {currentCount} => {currentCount + 1}");
         currentCount++;
+        await Update();
+    }
+
+    protected List<WeatherForecast>? forecasts;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await Update();
+        }
+    }
+
+    protected async Task Update()
+    {
+        forecasts = null;
+        forecasts = await HttpClient.GetFromJsonAsync<List<WeatherForecast>>(Navigation.ToAbsoluteUri("api/weather/list").ToString());
+        StateHasChanged();
+        Logger.LogInformation("Weather initialized.");
     }
 }

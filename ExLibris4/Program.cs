@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder (args);
 builder.Services.AddRazorComponents ()
     .AddInteractiveServerComponents ()
     .AddInteractiveWebAssemblyComponents ();
+builder.Services.AddControllers ();
+builder.Services.AddHttpClient ();
 
 // クッキーとグーグルの認証を構成
 builder.Services.AddAuthentication (options => {
@@ -46,6 +48,12 @@ if (app.Environment.IsDevelopment ()) {
     app.UseHsts ();
 }
 
+// Application Base Path
+var basePath = builder.Configuration ["AppBasePath"];
+if (!string.IsNullOrEmpty (basePath)) {
+    app.UsePathBase (basePath);
+}
+
 app.UseHttpsRedirection ();
 
 app.UseStaticFiles ();
@@ -54,10 +62,11 @@ app.UseAntiforgery ();
 app.UseAuthentication ();
 app.UseAuthorization ();
 
+app.MapControllers ();
 app.MapRazorComponents<App> ()
     .AddInteractiveServerRenderMode ()
     .AddInteractiveWebAssemblyRenderMode ()
-    .AddAdditionalAssemblies (typeof (Counter).Assembly);
+    .AddAdditionalAssemblies (typeof (ExLibris4.Client._Imports).Assembly);
 
 logger.LogInformation ("Initialized");
 app.Run ();
