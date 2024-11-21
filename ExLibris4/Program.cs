@@ -37,7 +37,6 @@ builder.Services.AddAuthorization (options => {
 });
 
 var app = builder.Build ();
-var logger = app.Services.GetRequiredService<ILoggerFactory> ().CreateLogger<Program> ();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment ()) {
@@ -68,5 +67,5 @@ app.MapRazorComponents<App> ()
     .AddInteractiveWebAssemblyRenderMode ()
     .AddAdditionalAssemblies (typeof (ExLibris4.Client._Imports).Assembly);
 
-logger.LogInformation ("Initialized");
+System.Diagnostics.Debug.WriteLine ("Initialized");
 app.Run ();

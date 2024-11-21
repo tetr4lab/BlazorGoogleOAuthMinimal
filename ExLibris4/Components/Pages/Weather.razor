@@ -3,7 +3,6 @@
 
 @page "/weather"
 @attribute [StreamRendering]
-@inject ILogger<Weather> Logger
 
 <PageTitle>Weather</PageTitle>
 
@@ -47,9 +46,8 @@
 @code {
     protected int currentCount = 0;
 
-    protected async Task IncrementCount()
-    {
-        Logger.LogInformation($"count {currentCount} => {currentCount + 1}");
+    protected async Task IncrementCount() {
+        System.Diagnostics.Debug.WriteLine($"count {currentCount} => {currentCount + 1}");
         currentCount++;
         await Update();
     }
@@ -67,7 +65,7 @@
         forecasts = null;
         forecasts = await WeatherForecast.Create ();
         StateHasChanged();
-        Logger.LogInformation("Weather initialized.");
+        System.Diagnostics.Debug.WriteLine("Weather initialized.");
     }
 
 }

@@ -4,7 +4,6 @@
 @page "/client"
 @rendermode InteractiveWebAssembly
 
-@inject ILogger<ClientHome> Logger
 @inject NavigationManager Navigation
 @inject HttpClient HttpClient
 
@@ -20,12 +19,9 @@
 
 <p role="status">Current count: @currentCount</p>
 
-@if (forecasts == null)
-{
+@if (forecasts == null) {
     <p><em>Loading...</em></p>
-}
-else
-{
+} else {
     <table class="table">
         <thead>
             <tr>
@@ -36,8 +32,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
-            {
+            @foreach (var forecast in forecasts) {
                 <tr>
                     <td>@forecast.Date.ToShortDateString()</td>
                     <td>@forecast.TemperatureC</td>
@@ -54,29 +49,25 @@ else
 @code {
     protected int currentCount = 0;
 
-    protected async Task IncrementCount()
-    {
-        Logger.LogInformation($"count {currentCount} => {currentCount + 1}");
+    protected async Task IncrementCount() {
+        System.Diagnostics.Debug.WriteLine($"count {currentCount} => {currentCount + 1}");
         currentCount++;
         await Update();
     }
 
     protected List<WeatherForecast>? forecasts;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
         await base.OnAfterRenderAsync(firstRender);
-        if (firstRender)
-        {
+        if (firstRender) {
             await Update();
         }
     }
 
-    protected async Task Update()
-    {
+    protected async Task Update() {
         forecasts = null;
         forecasts = await HttpClient.GetFromJsonAsync<List<WeatherForecast>>(Navigation.ToAbsoluteUri("api/weather/list").ToString());
         StateHasChanged();
-        Logger.LogInformation("Weather initialized.");
+        System.Diagnostics.Debug.WriteLine("Weather initialized.");
     }
 }
