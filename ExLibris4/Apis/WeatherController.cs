@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WeatherCast.Data;
 
