@@ -1,5 +1,6 @@
 ﻿@using System.Net.Http
-@using ExLibris4.Weather
+@using WeatherCast.Data
+@using WeatherCast.Component
 
 @page "/client"
 @rendermode InteractiveWebAssembly
@@ -17,57 +18,4 @@
     rendered on @(System.OperatingSystem.IsWindows() ? "windows" : "not windows").
 </p>
 
-<p role="status">Current count: @currentCount</p>
-
-@if (forecasts == null) {
-    <p><em>Loading...</em></p>
-} else {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts) {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <p>This component demonstrates showing data.</p>
-    <button class="btn btn-primary" @onclick="IncrementCount">Update</button>
-}
-
-@code {
-    protected int currentCount = 0;
-
-    protected async Task IncrementCount() {
-        System.Diagnostics.Debug.WriteLine($"count {currentCount} => {currentCount + 1}");
-        currentCount++;
-        await Update();
-    }
-
-    protected List<WeatherForecast>? forecasts;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        await base.OnAfterRenderAsync(firstRender);
-        if (firstRender) {
-            await Update();
-        }
-    }
-
-    protected async Task Update() {
-        forecasts = null;
-        forecasts = await HttpClient.GetFromJsonAsync<List<WeatherForecast>>(Navigation.ToAbsoluteUri("api/weather/list").ToString());
-        StateHasChanged();
-        System.Diagnostics.Debug.WriteLine("Weather initialized.");
-    }
-}
+<WeatherReport OnStateHasChanged="StateHasChanged" />

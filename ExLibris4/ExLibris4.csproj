@@ -9,7 +9,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExLibris4.Client\ExLibris4.Client.csproj" />
-    <ProjectReference Include="..\WeatherForecast\WeatherForecast.csproj" />
+    <ProjectReference Include="..\WeatherForecast\Component\WeatherForecast.Component.csproj" />
+    <ProjectReference Include="..\WeatherForecast\Data\WeatherForecast.Data.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.10" />
   </ItemGroup>

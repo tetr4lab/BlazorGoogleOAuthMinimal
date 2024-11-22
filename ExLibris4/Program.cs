@@ -1,8 +1,10 @@
 using ExLibris4.Client.Pages;
 using ExLibris4.Components;
+using ExLibris4.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using System.Security.Claims;
+using WeatherCast.Data;
 
 var builder = WebApplication.CreateBuilder (args);
 
@@ -35,6 +37,9 @@ builder.Services.AddAuthorization (options => {
         policyBuilder.RequireClaim (ClaimTypes.Email, builder.Configuration ["Identity:Claims:EmailAddress:Admin:0"]!, builder.Configuration ["Identity:Claims:EmailAddress:User:0"]!, builder.Configuration ["Identity:Claims:EmailAddress:User:1"]!);
     });
 });
+
+// 天気予報サービス
+builder.Services.AddScoped<IWeatherForecastServices> (provider => new WeatherForecastServices ());
 
 var app = builder.Build ();
 

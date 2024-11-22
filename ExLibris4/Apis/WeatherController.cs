@@ -2,7 +2,7 @@
 using System.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ExLibris4.Weather;
+using WeatherCast.Data;
 
 namespace ExLibris4.Apis;
 
@@ -13,17 +13,8 @@ public class WeatherController : Controller {
     // 対象に認可を与える
     [Authorize (Policy = "Users")]
     [HttpGet]
-    //[ValidateAntiForgeryToken]
     public async Task<IActionResult> List () {
-        var startDate = DateOnly.FromDateTime (DateTime.Now);
-        var summaries = new [] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        var forecasts = Enumerable.Range (1, 5).Select (index => new WeatherForecast {
-            Date = startDate.AddDays (index),
-            TemperatureC = Random.Shared.Next (-20, 55),
-            Summary = summaries [Random.Shared.Next (summaries.Length)]
-        }).ToArray ();
-        forecasts = await WeatherForecast.Create ();
-        return Ok (forecasts);
+        return Ok (await WeatherForecast.CreateAsync ());
     }
 
     // POST: TestController/Create

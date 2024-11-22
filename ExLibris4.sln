@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExLibris4", "ExLibris4\ExLi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExLibris4.Client", "ExLibris4.Client\ExLibris4.Client.csproj", "{8AB0E72F-24B6-402C-B4C8-CC9F98681E06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherForecast", "WeatherForecast\WeatherForecast.csproj", "{8CC90A60-337D-4B0B-B67D-DCAAF83396A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherForecast.Data", "WeatherForecast\Data\WeatherForecast.Data.csproj", "{AB13619D-871D-46E7-9333-8853A9B99D91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherForecast.Component", "WeatherForecast\Component\WeatherForecast.Component.csproj", "{ACFC4A3B-C5A4-4EF7-8707-6AD9E6558560}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +25,14 @@ Global
 		{8AB0E72F-24B6-402C-B4C8-CC9F98681E06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AB0E72F-24B6-402C-B4C8-CC9F98681E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AB0E72F-24B6-402C-B4C8-CC9F98681E06}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8CC90A60-337D-4B0B-B67D-DCAAF83396A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8CC90A60-337D-4B0B-B67D-DCAAF83396A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8CC90A60-337D-4B0B-B67D-DCAAF83396A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8CC90A60-337D-4B0B-B67D-DCAAF83396A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB13619D-871D-46E7-9333-8853A9B99D91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB13619D-871D-46E7-9333-8853A9B99D91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB13619D-871D-46E7-9333-8853A9B99D91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB13619D-871D-46E7-9333-8853A9B99D91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACFC4A3B-C5A4-4EF7-8707-6AD9E6558560}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACFC4A3B-C5A4-4EF7-8707-6AD9E6558560}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACFC4A3B-C5A4-4EF7-8707-6AD9E6558560}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACFC4A3B-C5A4-4EF7-8707-6AD9E6558560}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

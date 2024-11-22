@@ -10,7 +10,7 @@ tags: Blazor .NET OAuth GoogleOAuth2
     - OAuth認証の概要を理解している。
     - 認証と認可の概念を理解している。
 - この記事では、以下のようなプロジェクトを扱います。
-    - .NET 8で新たに導入されたBlazor Web Appの「認証なし」テンプレートをベースにします。
+    - .NET 8で新たに導入されたBlazor Web Appで「認証なし」テンプレートをベースにします。
     - Google OAuth認証を使用します。
         - `Microsoft.AspNetCore.Authentication.Google`を使います。
         - `Microsoft.AspNetCore.Identity`は使いません。
@@ -23,17 +23,16 @@ tags: Blazor .NET OAuth GoogleOAuth2
 - この記事では、サーバの構成やツール類の導入・使用方法には言及しません。
 
 ### 環境
-- 開発
-    - Windows 11
-    - VisualStudio 2022 17.8
-    - Microsoft.AspNetCore.Components.WebAssembly 8.0.0
-    - Microsoft.AspNetCore.Components.WebAssembly.Server 8.0.0
-    - Microsoft.AspNetCore.Authentication.Google 8.0.0
-- 実行
-    - Debian 12.2.0
-    - Microsoft.AspNetCore.App 8.0.0
-    - Microsoft.NETCore.App 8.0.0
-    - nginx 1.22.1
+#### 開発
+- Windows 11
+- VisualStudio 2022 17.12
+- Microsoft.AspNetCore.Components.WebAssembly 8.0.10
+- Microsoft.AspNetCore.Components.WebAssembly.Server 8.0.10
+- Microsoft.AspNetCore.Authentication.Google 8.0.10
+
+#### 実行
+
+https://zenn.dev/tetr4lab/articles/ad947ade600764
 
 ## プロジェクトの構成
 - VisualStudioで新規「Blazor Web App」プロジェクトを以下の構成で作ります。
@@ -48,15 +47,23 @@ tags: Blazor .NET OAuth GoogleOAuth2
 
 ## Google OAuth 2.0 認証
 ### 生成
+- 利用者には、生成者のGoogleアカウントが開示されますので、あらかじめ留意してください。
 - `Google Cloud Platform` > メニュー > `API とサービス` > `認証情報` > `プロジェクトを選択`プルダウン > `新しいプロジェクト` > `作成`
 - `OAuth consent screen` > `外部` > `作成`
     - 必要に応じて、`テストユーザー`に使用者のアカウントを追加します。
-- `認証情報` > `+ 認証情報を作成` > `承認済みのリダイレクト URI`
+- `認証情報` > `+ 認証情報を作成` > `OAuthクライアントID` > `ウェブアプリケーション` > `承認済みのリダイレクトURI`
     - `https://localhost:<port>/signin-google`
-        - 開発時のポートは`launchSettings.json`に記述があります。
-    - `URI を追加` > `https://<server>.<domain>/signin-google`
-        - 本番のポートはデフォルト(433)なので指定しません。
-    - `URI を追加` > `http://<server>.<domain>/signin-google` > `保存`
+        - 開発時のポート(`:<port>`)は`launchSettings.json`に記述があります。
+            - 指定を省略するとAnyになるようなので、複数のアプリで使う場合は、指定しない方が便利そうです。
+    - `URI を追加` > `https://<server>.<domain>:<port>/<directory>/signin-google`
+        - 本番のポートはデフォルト(433)であれば指定不要です。
+        - 標準外のポートを使う場合は、使用するポート毎に設定が必要です。
+    - `URI を追加` > `http://<server>.<domain>:<port>/<directory>/signin-google`
+        - 同じポートに対して、`http`プロトコルを追加します。
+            - サーバ側のリバースプロキシで使用されます。
+    - … > `保存`
+    - `signin-google`などのリダイレクトURIの情報は、ブラウザの「デベロッパーツール > ネットワーク > ヘッダー」辺りから、レスポンスヘッダーを見ることで確認できます。
+    - なお、設定が有効になるまでの時間には、かなりのばらつきがあります。気長に待ちましょう。
 - `クライアント ID`と`クライアント シークレット`を取得します。
 
 https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-8.0
@@ -144,9 +151,9 @@ $ export Identity__Claims__EmailAddress__User__0='<user-mailaddress-0>'
 $ export Identity__Claims__EmailAddress__User__1='<user-mailaddress-1>'
 ```
 
-- サービス化する場合は`.conf`に設定できます。
+- サービス化する場合はユニットファイルに設定できます。
 
-```ini:~.conf
+```systemd:~.service
 [Service]
 #~ ~ ~
 Environment=Authentication__Google__ClientId='<client-id>'
@@ -158,7 +165,7 @@ Environment=Identity__Claims__EmailAddress__User__1='<user-mailaddress-1>'
 
 - 以下のようにすることもできます。
 
-```ini:~.conf
+```systemd:~.service
 [Service]
 #~ ~ ~
 EnvironmentFile=<path>
@@ -206,6 +213,11 @@ builder.Services.AddAuthorization (options => {
         policyBuilder.RequireClaim (ClaimTypes.Email, builder.Configuration ["Identity:Claims:EmailAddress:Admin:0"]!, builder.Configuration ["Identity:Claims:EmailAddress:User:0"]!, builder.Configuration ["Identity:Claims:EmailAddress:User:1"]!);
     });
 });
+
+#if NET8_0_OR_GREATER
+// ページにカスケーディングパラメータ`Task<AuthenticationState>`を提供
+builder.Services.AddCascadingAuthenticationState ();
+#endif
 // ~ ~ ~
 app.UseAuthentication ();
 app.UseAuthorization ();
@@ -252,10 +264,21 @@ https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/policies?vi
 https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view=aspnetcore-8.0
 
 ### ポリシーによる選択的表示
-- ボディのルートコンポーネントを`CascadingAuthenticationState`で囲むことで、ページに`Task<AuthenticationState>`型のカスケーディングパラメータを渡します。
-- これにより、サーバ側ページで次の要素が使用可能になります。
+- サーバ側ページで次の要素を使用可能にします。
     - コンポーネント`<AuthorizeView>`、`<AuthorizeView Policy="<policy>">`
     - パラメータ`[CascadingParameter] protected Task<AuthenticationState> authState { get; set; };`
+
+#### .NET8
+- 以下のサービスを構成することで、ページに`Task<AuthenticationState>`型のカスケーディングパラメータが渡されます。
+
+```csharp:program.cs
+builder.Services.AddCascadingAuthenticationState ();
+```
+
+- `CascadingAuthenticationState`コンポーネントは使いません。
+
+#### .NET7
+- ボディのルートコンポーネントを`CascadingAuthenticationState`で囲むことで、ページに`Task<AuthenticationState>`型のカスケーディングパラメータを渡します。
 
 ```razor:Routes.razor
 <CascadingAuthenticationState>
@@ -354,6 +377,39 @@ https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view
 }
 ```
 
+#### メールアドレス
+- 以下で、メールアドレスが取得できます。
+
+```csharp
+    /// <summary>認証状況を得る</summary>
+    [CascadingParameter] protected Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    /// <summary>ユーザ・クレーム</summary>
+    protected ClaimsPrincipal? User { get; set; }
+
+    /// <summary>名前</summary>
+    protected string? Name { get; set; }
+
+    /// <summary>メールアドレス</summary>
+    protected string? EmailAddress { get; set; }
+
+    /// <summary>認証されたユーザがポリシーに適合するか(認可)</summary>
+    protected async Task<bool> Authorize (string policy) => User is not null && (await AuthorizationService.AuthorizeAsync (User, "Administrator")).Succeeded;
+
+    /// <summary>初期化</summary>
+    protected override async Task OnInitializedAsync () {
+        User = (await AuthState).User;
+        Name = User.Identity?.Name;
+        if (User.Identity is ClaimsIdentity claimsIdentity) {
+            foreach (var claim in claimsIdentity.Claims) {
+                if (claim.Type.EndsWith ("emailaddress")) {
+                    EmailAddress = claim.Value;
+                }
+            }
+        }
+    }
+```
+
 ## クライアント側の認可
 - 一応、クライアント側でもサーバ同様にしておきます。
 
@@ -365,6 +421,21 @@ https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view
 ## 留意点
 - ブラウザでアカウントからログアウトしても、たとえアカウントを切り替えても、元のセッションが有効な間は最初のアカウントでログインしたままになります。
 - いったんブラウザを閉じて開き直すと、リセットされます。
+
+## トラブルシューティング
+### このサイトにアクセスできません <domain> で接続が拒否されました。
+- アドレスバーの「サイト情報を表示」アイコンから、サイトのクッキーを削除してみてください。
+  - アプリがアカウントを認可していないときに認証すると、不認可状態がクッキーに残ってしまい、後からアプリを更新して認可しても再認証されないようです。
+- さらに、必要に応じて、デベロッパーツールを開いた状態で「再読み込み」ボタンを長押しして、サイトのキャッシュをクリアします。
+
+## ログアウト
+- Googleアカウントの「サードパーティ製のアプリとサービス」(下記リンク)から、接続を削除(ログアウト)できます。
+- 接続を削除しても、接続先のアカウントが損なわれるわけではなく、再接続しようとしたときに再度認証プロセス(ログイン)が必要になるだけです。
+
+### Googleアカウント サードパーティ製のアプリとサービス
+https://myaccount.google.com/connections
+
+- 執筆時点では、アカウント管理 > セキュリティ > サードパーティ製のアプリとサービス と辿ったところにあります。
 
 ## おわりに
 - 執筆者は、Blazor、ASP.NETともに初学者ですので、誤りもあるかと思います。

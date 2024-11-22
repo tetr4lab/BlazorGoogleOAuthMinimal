@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
+using WeatherCast.Data;
+using ExLibris4.Client.Services;
+using Microsoft.AspNetCore.Components;
 
 var builder = WebAssemblyHostBuilder.CreateDefault (args);
 
@@ -8,6 +11,13 @@ var builder = WebAssemblyHostBuilder.CreateDefault (args);
 builder.Services.AddTransient<CookieHandler> ();
 builder.Services.AddHttpClient ("fetch")
     .AddHttpMessageHandler<CookieHandler> ();
+
+// 天気予報サービス
+builder.Services.AddScoped<IWeatherForecastServices> (provider => {
+    var navigationManager = provider.GetRequiredService<NavigationManager> ();
+    var httpClient = provider.GetRequiredService<HttpClient> ();
+    return new WeatherForecastServices (navigationManager, httpClient);
+});
 
 await builder.Build ().RunAsync ();
 

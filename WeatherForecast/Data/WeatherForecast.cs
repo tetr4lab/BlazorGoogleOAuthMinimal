@@ -1,4 +1,4 @@
-﻿namespace ExLibris4.Weather;
+﻿namespace WeatherCast.Data;
 
 public class WeatherForecast {
     public DateOnly Date { get; set; }
@@ -6,7 +6,7 @@ public class WeatherForecast {
     public string? Summary { get; set; }
     public int TemperatureF => 32 + (int) (TemperatureC / 0.5556);
 
-    public static async Task<WeatherForecast []> Create () {
+    public static async Task<WeatherForecast []?> CreateAsync () {
         var startDate = DateOnly.FromDateTime (DateTime.Now);
         var summaries = new [] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
         var forecasts = Enumerable.Range (1, 5).Select (index => new WeatherForecast {
