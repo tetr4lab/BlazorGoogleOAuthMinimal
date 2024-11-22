@@ -1,6 +1,6 @@
 ---
 title: Blazor WebAPI - Wasm でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
-tags: Blazor .NET OAuth GoogleOAuth2
+tags: Blazor AspNetCore OAuth GoogleOAuth2 Wasm
 ---
 
 ## はじめに
@@ -21,45 +21,23 @@ Wasmページからのリクエストにクッキーを付加します。
 https://zenn.dev/link/articles/ad947ade600764
 
 ## サーバ側の構成
-### CORS設定
-~~Wasmアプリは、ブラウザに`Same-Origin`と見なされないようなので、`Cross-Origin`を限定的に許容するように設定します。
-下記`Host`で取得しているオリジンは、スキーム、ホスト、ポートとも、自身と同一です。
-例えば、Wasmページが`https://example.com:5000/test/wasm`であれば、`https://example.com:5000`を渡します。~~
-
-Wasmページでも、同一オリジンと見なされて、設定は不要でした。
-
 ### WebAPIの認可
 `AuthorizeAttribute`で認可の対象を指定します。
 
-```csharp:BooksController.cs
-using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using Microsoft.AspNetCore.Authorization;
-using Dapper;
-
-[Route ("api/[controller]")]
+```csharp:WeatherController.cs
+[Route ("api/[controller]/[action]")]
 [ApiController]
-public class BooksController : Controller {
-    // [Inject]
-    protected IDbConnection connection;
-    public BooksController (IDbConnection connection) {
-        this.connection = connection;
-    }
-
+public class WeatherController : Controller {
     // 対象に認可を与える
     [Authorize (Policy = "Users")]
     [HttpGet]
-    public IActionResult List () {
-        return Ok (connection.Query<Book> (@"
-select Books.*, Group_concat(AuthorBook.AuthorsId) as _relatedId
-from Books
-left join AuthorBook on Books.Id = AuthorBook.BooksId
-group by Books.Id
-limit 100
-;"));
+    public async Task<IActionResult> List () {
+        return Ok (await WeatherForecast.CreateAsync ());
     }
 }
 ```
+
+https://learn.microsoft.com/ja-jp/aspnet/core/web-api/?view=aspnetcore-8.0
 
 https://learn.microsoft.com/ja-jp/dotnet/api/microsoft.aspnetcore.authorization.authorizeattribute?view=aspnetcore-8.0
 
@@ -96,69 +74,14 @@ public class CookieHandler : DelegatingHandler {
 
 https://learn.microsoft.com/ja-jp/aspnet/core/blazor/call-web-api?view=aspnetcore-9.0#cookie-based-request-credentials
 
-
 ### WebAPI から取得
 認証を使わない場合と変わりません。
 
 ```razor:BookList.cs
-@using System.Data
-@using System.Net.Http
-
-@page "/books/{Option?}"
-@rendermode InteractiveWebAssembly
-
-@inject NavigationManager Navigation
-@inject HttpClient HttpClient
-
-<PageTitle>Books</PageTitle>
-
-<h1>Books @(Option)</h1>
-
-<p>running on @(OperatingSystem.IsBrowser() ? "browser" : "server").</p>
-
-@if (books == null || authors == null) {
-    <p><em>Loading...</em></p>
-} else {
-    @foreach (var book in books) {
-        <p>
-            @if (book != null) {
-                <span>Title: @book.Title</span><br />
-                <span>Publisher: @book.Publisher</span><br />
-                <span>Author: @(string.Join ("、", book.RelatedList.ConvertAll(a => a.Name)))</span><br />
-            }
-        </p>
-    }
-}
-
-@code {
-    [Parameter] public string? Option { get; set; }
-
-    protected List<Book>? books { get; set; } = null;
-    protected List<Author>? authors { get; set; } = null;
-
-    protected override async Task OnInitializedAsync () {
-        await base.OnInitializedAsync ();
-        if ((Option is null || Option == "oninitialized") && books is null && OperatingSystem.IsBrowser ()) {
-            await LoadViaWebApi ();
-        }
-    }
-
-    protected override async Task OnAfterRenderAsync (bool firstRender) {
-        await base.OnAfterRenderAsync (firstRender);
-        if (firstRender && Option == "onafterrender" && books is null && OperatingSystem.IsBrowser()) {
-            await LoadViaWebApi ();
-            StateHasChanged ();
-        }
-    }
-
-    /// <summary>WebAPIで読み込む</summary>
-    protected async Task LoadViaWebApi () {
-        books = await HttpClient.GetFromJsonAsync<List<Book>> (Navigation.ToAbsoluteUri ("api/books").ToString ());
-        authors = await HttpClient.GetFromJsonAsync<List<Author>> (Navigation.ToAbsoluteUri ("api/authors").ToString ());
-        Book.RelatedWholeList = authors;
-        Author.RelatedWholeList = books;
-    }
-}
+    /// <summary>天気予報一覧を得る</summary>
+    /// <returns>一覧</returns>
+    public async Task<WeatherForecast []?> GetForecastsAsync ()
+        => await HttpClient.GetFromJsonAsync<WeatherForecast []> (Navigation.ToAbsoluteUri ("api/weather/list").ToString ());
 ```
 
 ## おわりに

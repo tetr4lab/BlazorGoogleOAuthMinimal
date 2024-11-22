@@ -1,6 +1,6 @@
 ---
 title: Blazor Web App でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
-tags: Blazor .NET OAuth GoogleOAuth2
+tags: Blazor AspNetCore OAuth GoogleOAuth2
 ---
 
 ## はじめに
@@ -23,16 +23,9 @@ tags: Blazor .NET OAuth GoogleOAuth2
 - この記事では、サーバの構成やツール類の導入・使用方法には言及しません。
 
 ### 環境
-#### 開発
-- Windows 11
-- VisualStudio 2022 17.12
-- Microsoft.AspNetCore.Components.WebAssembly 8.0.10
-- Microsoft.AspNetCore.Components.WebAssembly.Server 8.0.10
-- Microsoft.AspNetCore.Authentication.Google 8.0.10
+以下の環境で検証しました。
 
-#### 実行
-
-https://zenn.dev/tetr4lab/articles/ad947ade600764
+https://zenn.dev/link/articles/ad947ade600764
 
 ## プロジェクトの構成
 - VisualStudioで新規「Blazor Web App」プロジェクトを以下の構成で作ります。
