@@ -12,12 +12,14 @@ public class WeatherController : Controller {
     // GET: api/weather
     [HttpGet]
     public async Task<IActionResult> List () {
+        System.Diagnostics.Debug.WriteLine ("List");
         return Ok (await WeatherForecast.CreateAsync ());
     }
 
     // GET: api/weather/yyyy/mm/dd
     [HttpGet ("{year}/{month}/{day}")]
     public async Task<IActionResult> Item (int year, int month, int day) {
+        System.Diagnostics.Debug.WriteLine ("Item");
         try {
             return Ok (await WeatherForecast.CreateAsync (new DateOnly (year, month, day)));
         }
@@ -31,6 +33,7 @@ public class WeatherController : Controller {
     [ValidateAntiForgeryToken]
     public ActionResult Create (IFormCollection collection) {
         try {
+            System.Diagnostics.Debug.WriteLine ($"Create {collection.Count} {collection.Keys.First ()}");
             return RedirectToAction (nameof (Index));
         }
         catch {
@@ -42,6 +45,7 @@ public class WeatherController : Controller {
     [Route ("posted")]
     [HttpGet]
     public ActionResult PostedItem () {
+        System.Diagnostics.Debug.WriteLine ("PostedItem");
         return View ();
     }
 
@@ -50,6 +54,7 @@ public class WeatherController : Controller {
     [ValidateAntiForgeryToken]
     public ActionResult Edit (int id, IFormCollection collection) {
         try {
+            System.Diagnostics.Debug.WriteLine ("Edit");
             return RedirectToAction (nameof (Index));
         }
         catch {
@@ -62,6 +67,7 @@ public class WeatherController : Controller {
     [ValidateAntiForgeryToken]
     public ActionResult Delete (int id, IFormCollection collection) {
         try {
+            System.Diagnostics.Debug.WriteLine ("Delete");
             return RedirectToAction (nameof (Index));
         }
         catch {

@@ -5,6 +5,7 @@ using ExLibris4.Client.Services;
 using Microsoft.AspNetCore.Components;
 
 var builder = WebAssemblyHostBuilder.CreateDefault (args);
+builder.Logging.SetMinimumLevel (LogLevel.Information);
 
 // WebAPIを叩く際にクッキーを加える「名前付きHTTPクライアント」の生成をサービス化
 // ref: https://learn.microsoft.com/ja-jp/aspnet/core/blazor/call-web-api?view=aspnetcore-9.0#cookie-based-request-credentials
@@ -16,7 +17,8 @@ builder.Services.AddHttpClient ("fetch")
 builder.Services.AddScoped<IWeatherForecastServices> (provider => {
     var navigationManager = provider.GetRequiredService<NavigationManager> ();
     var httpClient = provider.GetRequiredService<HttpClient> ();
-    return new WeatherForecastServices (navigationManager, httpClient);
+    var loggerFactory = provider.GetRequiredService<ILoggerFactory> ();
+    return new WeatherForecastServices (navigationManager, httpClient, loggerFactory);
 });
 
 await builder.Build ().RunAsync ();

@@ -8,6 +8,7 @@
 @inject NavigationManager Navigation
 @inject HttpClient HttpClient
 @inject IWeatherForecastServices ForecastServices
+@inject ILoggerFactory LoggerFactory
 
 <PageTitle>ClientHome</PageTitle>
 
@@ -28,9 +29,11 @@
     protected WeatherForecast? posted;
 
     protected async Task Post () {
-        posted = await WeatherForecast.CreateAsync (0);
+        var logger = LoggerFactory.CreateLogger<ClientHome>();
+        logger.LogInformation ("ClientHome.Post");
+        posted = await WeatherForecast.CreateAsync(0);
         var success = await ForecastServices.PostForecastAsync (posted);
-
+        logger.LogInformation ($"ClientHome.Post {success}");
     }
 
 }

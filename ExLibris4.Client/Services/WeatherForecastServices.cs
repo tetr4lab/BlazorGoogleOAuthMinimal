@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using ExLibris4.Client.Pages;
+using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 using WeatherCast.Data;
 
@@ -9,9 +10,11 @@ public class WeatherForecastServices : IWeatherForecastServices {
     // [Inject]
     private NavigationManager Navigation;
     private HttpClient HttpClient;
-    public WeatherForecastServices (NavigationManager navigation, HttpClient httpClient) {
+    private ILoggerFactory LoggerFactory;
+    public WeatherForecastServices (NavigationManager navigation, HttpClient httpClient, ILoggerFactory loggerFactory) {
         Navigation = navigation;
         HttpClient = httpClient;
+        LoggerFactory = loggerFactory;
     }
 
     /// <inheritdoc/>
@@ -20,8 +23,10 @@ public class WeatherForecastServices : IWeatherForecastServices {
 
     /// <inheritdoc/>
     public async Task<bool> PostForecastAsync (WeatherForecast forecast) {
-        using var respoce = await HttpClient.PostAsJsonAsync (Navigation.ToAbsoluteUri ("api/weather").ToString (), forecast);
-        return respoce.IsSuccessStatusCode;
+        var logger = LoggerFactory.CreateLogger<ClientHome> ();
+        using var responce = await HttpClient.PostAsJsonAsync (Navigation.ToAbsoluteUri ("api/weather").ToString (), forecast);
+        logger.LogInformation ($"PostForecastAsync {responce.StatusCode} {responce.ReasonPhrase} {responce.TrailingHeaders}");
+        return responce.IsSuccessStatusCode;
     }
 
 }
