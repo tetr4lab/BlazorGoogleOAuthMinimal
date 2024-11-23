@@ -23,6 +23,7 @@ https://zenn.dev/link/articles/ad947ade600764
 ## サーバ側の構成
 ### WebAPIの認可
 `AuthorizeAttribute`で認可の対象を指定します。
+認可は、アクションに対して付与することも、コントローラ全体に対して付与することも可能です。
 
 ```csharp:WeatherController.cs
 [Route ("api/[controller]/[action]")]
@@ -38,6 +39,8 @@ public class WeatherController : Controller {
 ```
 
 https://learn.microsoft.com/ja-jp/aspnet/core/web-api/?view=aspnetcore-8.0
+
+https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view=aspnetcore-8.0
 
 https://learn.microsoft.com/ja-jp/dotnet/api/microsoft.aspnetcore.authorization.authorizeattribute?view=aspnetcore-8.0
 
