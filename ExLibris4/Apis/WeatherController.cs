@@ -26,7 +26,7 @@ public class WeatherController : Controller {
         }
     }
 
-    // POST: TestController/Create
+    // POST: api/weather
     [HttpPost]
     [ValidateAntiForgeryToken]
     public ActionResult Create (IFormCollection collection) {
@@ -38,8 +38,10 @@ public class WeatherController : Controller {
         }
     }
 
-    // GET: TestController/Edit/5
-    public ActionResult Edit (int id) {
+    // GET: api/weather/posted
+    [Route ("posted")]
+    [HttpGet]
+    public ActionResult PostedItem () {
         return View ();
     }
 
@@ -53,11 +55,6 @@ public class WeatherController : Controller {
         catch {
             return View ();
         }
-    }
-
-    // GET: TestController/Delete/5
-    public ActionResult Delete (int id) {
-        return View ();
     }
 
     // POST: TestController/Delete/5

@@ -14,8 +14,14 @@ public class WeatherForecastServices : IWeatherForecastServices {
         HttpClient = httpClient;
     }
 
-    /// <summary>天気予報一覧を得る</summary>
-    /// <returns>一覧</returns>
+    /// <inheritdoc/>
     public async Task<WeatherForecast []?> GetForecastsAsync ()
-        => await HttpClient.GetFromJsonAsync<WeatherForecast []> (Navigation.ToAbsoluteUri ("api/weather/list").ToString ());
+        => await HttpClient.GetFromJsonAsync<WeatherForecast []> (Navigation.ToAbsoluteUri ("api/weather").ToString ());
+
+    /// <inheritdoc/>
+    public async Task<bool> PostForecastAsync (WeatherForecast forecast) {
+        using var respoce = await HttpClient.PostAsJsonAsync (Navigation.ToAbsoluteUri ("api/weather").ToString (), forecast);
+        return respoce.IsSuccessStatusCode;
+    }
+
 }
