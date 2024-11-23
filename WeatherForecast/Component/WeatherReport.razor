@@ -5,11 +5,12 @@
 
 @inject IWeatherForecastServices ForecastServices
 
-<p role="status">Current count: @currentCount</p>
-
-@if (forecasts == null) {
+@if (Auto == true) {
+    <p role="status">Current count: @currentCount</p>
+}
+@if (Auto == true && Forecasts is null) {
     <p><em>Loading...</em></p>
-} else {
+} else if ((Auto != true && Forecast is not null) || Forecasts is not null) {
     <table class="table">
         <thead>
             <tr>
@@ -20,48 +21,30 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts) {
+            @if (Forecast is not null) {
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <td>@Forecast.Date.ToShortDateString()</td>
+                    <td>@Forecast.TemperatureC</td>
+                    <td>@Forecast.TemperatureF</td>
+                    <td>@Forecast.Summary</td>
                 </tr>
+            }
+            @if (Forecasts is not null) {
+                @foreach (var forecast in Forecasts) {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
     <p>This component demonstrates showing data.</p>
-    <button class="btn btn-primary" @onclick="IncrementCount">Update</button>
+    @if (Auto == true) {
+        <button class="btn btn-primary" @onclick="IncrementCount">Update</button>
+    }
 }
 
-@code {
-    /// <summary>更新を親に伝える</summary>
-    [Parameter] public EventCallback OnStateHasChanged { get; set; }
 
-    protected int currentCount = 0;
-
-    protected async Task IncrementCount() {
-        System.Diagnostics.Debug.WriteLine($"count {currentCount} => {currentCount + 1}");
-        currentCount++;
-        await Update();
-    }
-
-    protected WeatherForecast[]? forecasts;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        await base.OnAfterRenderAsync(firstRender);
-        if (firstRender) {
-            await Update();
-        }
-    }
-
-    protected async Task Update () {
-        forecasts = null;
-        forecasts = await ForecastServices.GetForecastsAsync ();
-        if (OnStateHasChanged.HasDelegate) {
-            await OnStateHasChanged.InvokeAsync ();
-        }
-        System.Diagnostics.Debug.WriteLine("Weather initialized.");
-    }
-
-}
