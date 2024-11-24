@@ -22,11 +22,12 @@ public class WeatherForecastServices : IWeatherForecastServices {
         => await HttpClient.GetFromJsonAsync<WeatherForecast []> (Navigation.ToAbsoluteUri ("api/weather").ToString ());
 
     /// <inheritdoc/>
-    public async Task<bool> PostForecastAsync (WeatherForecast forecast) {
-        var logger = LoggerFactory.CreateLogger<ClientHome> ();
+    public async Task<WeatherForecast []?> PostForecastAsync (WeatherForecast forecast) {
         using var responce = await HttpClient.PostAsJsonAsync (Navigation.ToAbsoluteUri ("api/weather").ToString (), forecast);
-        logger.LogInformation ($"PostForecastAsync {responce.StatusCode} {responce.ReasonPhrase} {responce.TrailingHeaders}");
-        return responce.IsSuccessStatusCode;
+        var posted = await responce.Content.ReadFromJsonAsync<WeatherForecast> ();
+        var logger = LoggerFactory.CreateLogger<ClientHome> ();
+        logger.LogInformation ($"PostForecastAsync {responce.StatusCode} {responce.ReasonPhrase} {posted}");
+        return posted is null ? null : [posted];
     }
 
 }

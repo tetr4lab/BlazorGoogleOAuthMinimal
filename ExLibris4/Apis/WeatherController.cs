@@ -28,50 +28,18 @@ public class WeatherController : Controller {
         }
     }
 
+    // POST: api/weather/post
+    //[Route ("post")]
     // POST: api/weather
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Create (IFormCollection collection) {
+    public ActionResult Post ([FromBody] WeatherForecast? forecast) {
         try {
-            System.Diagnostics.Debug.WriteLine ($"Create {collection.Count} {collection.Keys.First ()}");
-            return RedirectToAction (nameof (Index));
+            System.Diagnostics.Debug.WriteLine ($"Post {forecast}");
+            return Ok (forecast);
         }
-        catch {
-            return View ();
+        catch (Exception ex) {
+            return BadRequest (ex.Message);
         }
     }
 
-    // GET: api/weather/posted
-    [Route ("posted")]
-    [HttpGet]
-    public ActionResult PostedItem () {
-        System.Diagnostics.Debug.WriteLine ("PostedItem");
-        return View ();
-    }
-
-    // POST: TestController/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Edit (int id, IFormCollection collection) {
-        try {
-            System.Diagnostics.Debug.WriteLine ("Edit");
-            return RedirectToAction (nameof (Index));
-        }
-        catch {
-            return View ();
-        }
-    }
-
-    // POST: TestController/Delete/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Delete (int id, IFormCollection collection) {
-        try {
-            System.Diagnostics.Debug.WriteLine ("Delete");
-            return RedirectToAction (nameof (Index));
-        }
-        catch {
-            return View ();
-        }
-    }
 }

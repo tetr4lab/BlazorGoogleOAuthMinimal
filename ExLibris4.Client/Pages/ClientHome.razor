@@ -20,20 +20,30 @@
     rendered on @(System.OperatingSystem.IsWindows() ? "windows" : "not windows").
 </p>
 
-<WeatherReport OnStateHasChanged="StateHasChanged" />
+<WeatherReport OnStateHasChanged="StateHasChanged" @ref="report" />
 
-<button class="btn btn-primary" @onclick="Post">Post</button>
-<WeatherReport Forecast="posted" Auto="false" OnStateHasChanged="StateHasChanged" /> 
+@if (report is not null) {
+    @* 上のレポートが表示されてから有効化 *@
+    <p>
+        <button class="btn btn-primary" title="送/受信の結果を表示します。" @onclick="Post">Post</button>
+        <WeatherReport Forecast="posted" Forecasts="result" Auto="false" OnStateHasChanged="StateHasChanged" />
+        @if (posted is not null) {
+            <button class="btn btn-primary" @onclick="@(() => {posted = null; result = null;})">Clear</button>
+        }
+    </p>
+}
 
 @code {
+    protected WeatherReport? report;
+
     protected WeatherForecast? posted;
+    protected WeatherForecast []? result;
 
     protected async Task Post () {
-        var logger = LoggerFactory.CreateLogger<ClientHome>();
-        logger.LogInformation ("ClientHome.Post");
         posted = await WeatherForecast.CreateAsync(0);
-        var success = await ForecastServices.PostForecastAsync (posted);
-        logger.LogInformation ($"ClientHome.Post {success}");
+        result = await ForecastServices.PostForecastAsync(posted);
+        var logger = LoggerFactory.CreateLogger<ClientHome>();
+        logger.LogInformation($"ClientHome.Post result={(result is not null && result.Length > 0 ? result[0] : "null")}");
     }
 
 }

@@ -1,4 +1,6 @@
-﻿namespace WeatherCast.Data;
+﻿using System.Text.Json.Serialization;
+
+namespace WeatherCast.Data;
 
 public class WeatherForecast {
 
@@ -6,7 +8,10 @@ public class WeatherForecast {
     protected static readonly int MaxTemperature = 55;
     public DateOnly Date { get; init; }
     public float TemperatureC { get; init; }
+    
+    [JsonIgnore]
     public string Summary => Summaries [Math.Min (Summaries.Length - 1, (int) ((TemperatureC - MinTemperature) / (MaxTemperature - MinTemperature) * Summaries.Length))];
+    [JsonIgnore]
     public float TemperatureF => 32f + (TemperatureC / 0.5556f);
     protected static string [] Summaries { get; } = { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
 
@@ -43,4 +48,7 @@ public class WeatherForecast {
         await Task.Delay (500);
         return forecasts;
     }
+
+    /// <summary>文字列化</summary>
+    public override string ToString () => $"({Date.ToShortDateString ()} {TemperatureC}℃ {TemperatureF}℉ {Summary})";
 }

@@ -7,7 +7,7 @@ public class WeatherForecastServices : IWeatherForecastServices {
     /// <inheritdoc/>
     public async Task<WeatherForecast []?> GetForecastsAsync () => await WeatherForecast.CreateAsync ();
     /// <inheritdoc/>
-    public Task<bool> PostForecastAsync (WeatherForecast forecast) {
+    public Task<WeatherForecast []?> PostForecastAsync (WeatherForecast forecast) {
         throw new NotImplementedException ();
     }
 }

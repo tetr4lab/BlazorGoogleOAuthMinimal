@@ -7,6 +7,6 @@ public interface IWeatherForecastServices {
     /// <summary>天気予報を登録する</summary>
     /// <param name="forecast">天気予報</param>
     /// <returns>成否</returns>
-    public abstract Task<bool> PostForecastAsync (WeatherForecast forecast);
+    public abstract Task<WeatherForecast []?> PostForecastAsync (WeatherForecast forecast);
 
 }
