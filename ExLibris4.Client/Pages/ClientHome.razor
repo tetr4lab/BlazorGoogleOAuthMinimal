@@ -5,8 +5,6 @@
 @page "/client"
 @rendermode InteractiveWebAssembly
 
-@inject NavigationManager Navigation
-@inject HttpClient HttpClient
 @inject IWeatherForecastServices ForecastServices
 @inject ILoggerFactory LoggerFactory
 
@@ -28,22 +26,33 @@
         <button class="btn btn-primary" title="送/受信の結果を表示します。" @onclick="Post">Post</button>
         <WeatherReport Forecast="posted" Forecasts="result" Auto="false" OnStateHasChanged="StateHasChanged" />
         @if (posted is not null) {
-            <button class="btn btn-primary" @onclick="@(() => {posted = null; result = null;})">Clear</button>
+            <button class="btn btn-primary" @onclick="Clear">Clear</button>
         }
     </p>
 }
 
 @code {
+    /// <summary>Getしたレポート (表示完了の確認に使用)</summary>
     protected WeatherReport? report;
 
+    /// <summary>Postにつかったレポート</summary>
     protected WeatherForecast? posted;
-    protected WeatherForecast []? result;
 
+    /// <summary>Postの結果として返されたレポート</summary>
+    protected WeatherForecast[]? result;
+
+    /// <summary>本日の新規レポートをPost</summary>
     protected async Task Post () {
         posted = await WeatherForecast.CreateAsync(0);
         result = await ForecastServices.PostForecastAsync(posted);
         var logger = LoggerFactory.CreateLogger<ClientHome>();
         logger.LogInformation($"ClientHome.Post result={(result is not null && result.Length > 0 ? result[0] : "null")}");
+    }
+
+    /// <summary>Post関連レポートのクリア</summary>
+    protected void Clear () {
+        posted = null;
+        result = null;
     }
 
 }
