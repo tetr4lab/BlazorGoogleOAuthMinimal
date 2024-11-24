@@ -6,7 +6,7 @@ tags: Blazor AspNetCore OAuth GoogleOAuth2 Wasm
 ## はじめに
 この記事は、以下の記事の続編です。
 
-https://zenn.dev/link/articles/1946ec08aec508
+https://github.com/tetr4lab/BlazorGoogleOAuthMinimal
 
 前記事では、サーバ側もクライアント側も、ブラウザでページにアクセスする際の認証を扱いました。  
 当記事では、クライアント側のアプリ(Wasm)からサーバ側のWebAPIにアクセスする際の認証を扱います。
