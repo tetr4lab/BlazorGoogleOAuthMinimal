@@ -10,13 +10,12 @@ tags: Blazor AspNetCore OAuth GoogleOAuth2
     - OAuth認証の概要を理解している。
     - 認証と認可の概念を理解している。
 - この記事では、以下のようなプロジェクトを扱います。
-    - .NET 8で新たに導入されたBlazor Web Appで「認証なし」テンプレートをベースにします。
+    - .NET 8のBlazor Web Appで「認証なし」テンプレートをベースにします。
     - Google OAuth認証を使用します。
         - `Microsoft.AspNetCore.Authentication.Google`を使います。
         - `Microsoft.AspNetCore.Identity`は使いません。
     - Google ChromeでGoogleアカウントを使うユーザを想定します。
         - ログイン/ログアウトのUIは用意しません。
-        - 「ブラウザがログインを認識しているアカウント」を識別します。
     - ポリシーベースの認可を行います。
     - プライベートなオンプレミスサーバでの運用を想定しています。
         - HTTPSを想定しています。(自己署名を含む)
@@ -63,28 +62,8 @@ https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/goo
 
 ### シークレット・ストレージに格納
 - ストレージの実態は、`%APPDATA%\Microsoft\UserSecrets\<user_secrets_id>\secrets.json`の`<key>:<value>`です。
-- ストレージは開発用で、パブリッシュには含まれません。
 
 https://learn.microsoft.com/ja-jp/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=windows#enable-secret-storage
-
-#### ストレージの初期化
-- パッケージマネージャコンソール(または開発者用コマンドプロンプト)から以下を実行して、ストレージを初期化します。
-
-```powershell:パッケージマネージャコンソール
-PM> dotnet user-secrets init
-```
-#### ストレージへの格納
-- 以下を実行して、`クライアント ID`と`クライアント シークレット`を格納します。
-
-```powershell:パッケージマネージャコンソール
-PM> dotnet user-secrets set "Authentication:Google:ClientId" "<client-id>"
-PM> dotnet user-secrets set "Authentication:Google:ClientSecret" "<client-secret>"
-PM> dotnet user-secrets set "Identity:Claims:EmailAddress:Admin:0" "<admin-mailaddress-0>"
-PM> dotnet user-secrets set "Identity:Claims:EmailAddress:User:0" "<user-mailaddress-0>"
-PM> dotnet user-secrets set "Identity:Claims:EmailAddress:User:1" "<user-mailaddress-1>"
-```
-
-- 後半のメールアドレスは、認可ポリシーに使います。
 
 #### ストレージの参照
 
@@ -93,16 +72,6 @@ PM> dotnet user-secrets set "Identity:Claims:EmailAddress:User:1" "<user-mailadd
 
 #### ストレージの直接編集
 - ソリューション エクスプローラでプロジェクトのコンテキストメニューから「ユーザーシークレットの管理」を選びます。
-
-```json:appsettings.json
-    "Authentication:Google:ClientId": "<client-id>",
-    "Authentication:Google:ClientSecret": "<client-secret>",
-    "Identity:Claims:EmailAddress:Admin:0": "<admin-mailaddress-0>",
-    "Identity:Claims:EmailAddress:User:0": "<user-mailaddress-0>",
-    "Identity:Claims:EmailAddress:User:1": "<user-mailaddress-1>"
-```
-
-- 上記は畳み込まれていますが、以下のようにも書けます。というか、こちらが本来の形式です。
 
 ```json:appsettings.json
     "Authentication": {
@@ -126,10 +95,18 @@ PM> dotnet user-secrets set "Identity:Claims:EmailAddress:User:1" "<user-mailadd
     },
 ```
 
-- 配列`<array>: [ "value0", "value1" ]`は、`"<array>:0":"<value0>", "<array>:1":"<value1>"`と等価です。
+- 以下のようにも書けます。
+
+```json:appsettings.json
+    "Authentication:Google:ClientId": "<client-id>",
+    "Authentication:Google:ClientSecret": "<client-secret>",
+    "Identity:Claims:EmailAddress:Admin:0": "<admin-mailaddress-0>",
+    "Identity:Claims:EmailAddress:User:0": "<user-mailaddress-0>",
+    "Identity:Claims:EmailAddress:User:1": "<user-mailaddress-1>"
+```
 
 ### ソースコードに格納
-- 共有されても支障の無い情報であれば、シークレット・ストレージと同じ形式で、開発・本番とも、`appsettings.json`で保持することが可能です。
+- 共有されても支障の無い情報であれば、シークレット・ストレージと同じ形式で、開発/本番を、`appsettings.Development.json`/`appsettings.json`で保持することが可能です。
 
 ### 環境変数に格納
 - 本番時に環境変数で保持する場合は、以下のように`:`を`__`に置換します。
