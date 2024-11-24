@@ -1,23 +1,36 @@
-﻿@namespace ExLibris4.Components
+﻿@using System.Security.Claims
+
+@namespace ExLibris4.Components
+
+@inject IAuthorizationPolicyProvider PolicyProvider
+@inject IAuthorizationService AuthService
 
 <p>
-    @if (Identity != null) {
-        @($"Name: {Identity.Name}")<br />
-        @($"IsAuthenticated: {Identity.IsAuthenticated}")<br />
-        @($"Type: {Identity.GetType()}")<br />
-        @($"BootstrapContext: {Identity.BootstrapContext}")<br />
-        @($"Actor: {Identity.Actor}")<br />
-        @($"Label: {Identity.Label}")<br />
-        @($"AuthenticationType: {Identity.AuthenticationType}")<br />
-        @($"NameClaimType: {Identity.NameClaimType}")<br />
-        @($"RoleClaimType: {Identity.RoleClaimType}")<br />
-        @($"Claims: [{string.Join(", ", Identity.Claims.ToList().ConvertAll(c => $@"{{""Type"":""{ c.Type}"", ""Value"":""{c.Value}"", ""ValueType"":""{c.ValueType}""}}"))}]")<br />
+    @if (User is not null) {
+        @($"Name: {Name}")<br />
+        @($"Email: {EmailAddress}")<br />
     } else {
         <span>no identity</span>
     }
 </p>
 
 @code {
-    [Parameter]
-    public System.Security.Claims.ClaimsIdentity? Identity { get; set; } = null;
+    [CascadingParameter] protected Task<AuthenticationState> AuthState { get; set; } = null!;
+    protected ClaimsPrincipal? User { get; set; }
+    protected string? Name { get; set; }
+    protected string? EmailAddress { get; set; }
+    protected override async Task OnInitializedAsync() {
+        await base.OnInitializedAsync();
+        User = (AuthState is not null) ? (await AuthState).User : null;
+        Name = User?.Identity?.Name;
+        if (User?.Identity is ClaimsIdentity claimsIdentity) {
+            foreach (var claim in claimsIdentity.Claims) {
+                if (claim.Type.EndsWith ("emailaddress")) {
+                    EmailAddress = claim.Value;
+                    break;
+                }
+            }
+        }
+    }
+
 }

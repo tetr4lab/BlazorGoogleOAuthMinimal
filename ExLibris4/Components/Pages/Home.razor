@@ -4,7 +4,7 @@
 
 <h1>Hello, @(identity?.Name ?? "World")</h1>
 <p>Welcome to your new app.</p>
-<DumpIdentity Identity="identity" />
+<DumpIdentity />
 <AuthorizeView Policy="Admin">
     <Authorized><p>あなたは、管理者です。</p></Authorized>
     <NotAuthorized><p>あなたは、一般ユーザです。</p></NotAuthorized>
