@@ -2,6 +2,7 @@
 
 namespace WeatherCast.Data;
 
+/// <summary>天気予報</summary>
 public class WeatherForecast {
 
     protected static readonly int MinTemperature = -20;

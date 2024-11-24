@@ -5,6 +5,8 @@ using ExLibris4.Client.Services;
 using Microsoft.AspNetCore.Components;
 
 var builder = WebAssemblyHostBuilder.CreateDefault (args);
+
+// クライアント側ログの最低レベル
 builder.Logging.SetMinimumLevel (LogLevel.Information);
 
 // WebAPIを叩く際にクッキーを加える「名前付きHTTPクライアント」の生成をサービス化

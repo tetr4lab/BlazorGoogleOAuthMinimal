@@ -28,8 +28,9 @@ public class WeatherController : Controller {
         }
     }
 
-    // POST: api/weather/post
-    //[Route ("post")]
+    // // POST: api/weather/post
+    // [Route ("post")]
+    // --- or ---
     // POST: api/weather
     [HttpPost]
     public ActionResult Post ([FromBody] WeatherForecast? forecast) {
