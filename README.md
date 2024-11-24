@@ -2,7 +2,14 @@
 title: Blazor Web App でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
 tags: Blazor AspNetCore OAuth GoogleOAuth2
 ---
+# 記事の構成
+## Blazor Web App でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
+[本編](#%E6%9C%AC%E7%B7%A8)
 
+## Blazor WebAPI - Wasm でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
+[続編](./GoogleOAuth_WebAPI-Wasm.md)
+
+# 本編
 ## はじめに
 - この記事では、以下のような読者像を想定しています。
     - C#と.NETを囓っている
