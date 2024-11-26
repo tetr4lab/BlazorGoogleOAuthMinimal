@@ -18,6 +18,9 @@
     rendered on @(System.OperatingSystem.IsWindows() ? "windows" : "not windows").
 </p>
 
+<p role="status">Current count: @currentCount</p>
+<p><button class="btn btn-primary" @onclick="IncrementCount">Increment</button></p>
+
 <WeatherReport OnStateHasChanged="StateHasChanged" @ref="report" />
 
 @if (report is not null) {
@@ -53,6 +56,12 @@
     protected void Clear () {
         posted = null;
         result = null;
+    }
+
+    protected int currentCount = 0;
+
+    protected void IncrementCount () {
+        currentCount++;
     }
 
 }

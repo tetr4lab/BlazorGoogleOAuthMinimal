@@ -18,16 +18,30 @@ public class WeatherForecastServices : IWeatherForecastServices {
     }
 
     /// <inheritdoc/>
-    public async Task<WeatherForecast []?> GetForecastsAsync ()
-        => await HttpClient.GetFromJsonAsync<WeatherForecast []> (Navigation.ToAbsoluteUri ("api/weather").ToString ());
+    public async Task<WeatherForecast []?> GetForecastsAsync () {
+        var logger = LoggerFactory.CreateLogger<ClientHome> ();
+        try {
+            return await HttpClient.GetFromJsonAsync<WeatherForecast []> (Navigation.ToAbsoluteUri ("api/weather").ToString ());
+        }
+        catch (Exception ex) {
+            logger.LogInformation ($"GetForecastsAsync {ex}");
+            return null;
+        }
+    }
 
     /// <inheritdoc/>
     public async Task<WeatherForecast []?> PostForecastAsync (WeatherForecast forecast) {
-        using var responce = await HttpClient.PostAsJsonAsync (Navigation.ToAbsoluteUri ("api/weather").ToString (), forecast);
-        var posted = await responce.Content.ReadFromJsonAsync<WeatherForecast> ();
         var logger = LoggerFactory.CreateLogger<ClientHome> ();
-        logger.LogInformation ($"PostForecastAsync {responce.StatusCode} {responce.ReasonPhrase} {posted}");
-        return posted is null ? null : [posted];
+        try {
+            using var responce = await HttpClient.PostAsJsonAsync (Navigation.ToAbsoluteUri ("api/weather").ToString (), forecast);
+            var posted = await responce.Content.ReadFromJsonAsync<WeatherForecast> ();
+            logger.LogInformation ($"PostForecastAsync {responce.StatusCode} {responce.ReasonPhrase} {posted}");
+            return posted is null ? null : [posted];
+        }
+        catch (Exception ex) {
+            logger.LogInformation ($"PostForecastAsync {ex}");
+            return null;
+        }
     }
 
 }
