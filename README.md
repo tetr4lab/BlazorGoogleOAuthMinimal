@@ -400,10 +400,19 @@ builder.Services.AddCascadingAuthenticationState ();
 - いったんブラウザを閉じて開き直すと、リセットされます。
 
 ## トラブルシューティング
-### このサイトにアクセスできません <domain> で接続が拒否されました。
+### このサイトにアクセスできません \<domain\> で接続が拒否されました。
 - アドレスバーの「サイト情報を表示」アイコンから、サイトのクッキーを削除してみてください。
   - アプリがアカウントを認可していないときに認証すると、不認可状態がクッキーに残ってしまい、後からアプリを更新して認可しても再認証されないようです。
 - さらに、必要に応じて、デベロッパーツールを開いた状態で「再読み込み」ボタンを長押しして、サイトのキャッシュをクリアします。
+
+### このブラウザまたはアプリは安全でない可能性があります。
+- `launchSettings.json`に以下の値が不足している可能性があります。
+
+```json:launchSettings.json
+"inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"
+```
+
+https://learn.microsoft.com/ja-jp/aspnet/core/blazor/debug?view=aspnetcore-9.0&tabs=visual-studio#app-configuration-prerequisites
 
 ## ログアウト
 - Googleアカウントの「サードパーティ製のアプリとサービス」(下記リンク)から、接続を削除(ログアウト)できます。
