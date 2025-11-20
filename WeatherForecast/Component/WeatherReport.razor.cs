@@ -49,6 +49,7 @@ public partial class WeatherReport {
     protected async Task Update () {
         Forecasts = null;
         Forecasts ??= await ForecastServices.GetForecastsAsync ();
+        StateHasChanged ();
         if (OnStateHasChanged.HasDelegate) {
             await OnStateHasChanged.InvokeAsync ();
         }
