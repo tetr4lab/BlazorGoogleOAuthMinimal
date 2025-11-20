@@ -1,5 +1,5 @@
 ---
-title: Blazor WebAPI - Wasm でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
+title: Blazor WebAPI - Wasm でGoogle認証を最小規模で使う (ASP.NET Core 10.0)
 tags: Blazor AspNetCore OAuth GoogleOAuth2 Wasm
 ---
 
@@ -38,11 +38,11 @@ public class WeatherController : Controller {
 }
 ```
 
-https://learn.microsoft.com/ja-jp/aspnet/core/web-api/?view=aspnetcore-8.0
+https://learn.microsoft.com/ja-jp/aspnet/core/web-api/?view=aspnetcore-10.0
 
-https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view=aspnetcore-8.0
+https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view=aspnetcore-10.0
 
-https://learn.microsoft.com/ja-jp/dotnet/api/microsoft.aspnetcore.authorization.authorizeattribute?view=aspnetcore-8.0
+https://learn.microsoft.com/ja-jp/dotnet/api/microsoft.aspnetcore.authorization.authorizeattribute?view=aspnetcore-10.0
 
 ## クライアント側の構成
 ### クッキー付き HttpClient
@@ -75,7 +75,7 @@ public class CookieHandler : DelegatingHandler {
 }
 ```
 
-https://learn.microsoft.com/ja-jp/aspnet/core/blazor/call-web-api?view=aspnetcore-9.0#cookie-based-request-credentials
+https://learn.microsoft.com/ja-jp/aspnet/core/blazor/call-web-api?view=aspnetcore-10.0#cookie-based-request-credentials
 
 ### WebAPI から取得
 認証を使わない場合と変わりません。

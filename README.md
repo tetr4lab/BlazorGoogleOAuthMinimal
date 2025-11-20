@@ -1,12 +1,12 @@
 ---
-title: Blazor Web App でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
+title: Blazor Web App でGoogle認証を最小規模で使う (ASP.NET Core 10.0)
 tags: Blazor AspNetCore OAuth GoogleOAuth2
 ---
 # 記事の構成
-## Blazor Web App でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
+## Blazor Web App でGoogle認証を最小規模で使う (ASP.NET Core 10.0)
 [本編](#%E6%9C%AC%E7%B7%A8)
 
-## Blazor WebAPI - Wasm でGoogle認証を最小規模で使う (ASP.NET Core 8.0)
+## Blazor WebAPI - Wasm でGoogle認証を最小規模で使う (ASP.NET Core 10.0)
 [続編](./GoogleOAuth_WebAPI-Wasm.md)
 
 # 本編
@@ -18,6 +18,7 @@ tags: Blazor AspNetCore OAuth GoogleOAuth2
     - 認証と認可の概念を理解している。
 - この記事では、以下のようなプロジェクトを扱います。
     - .NET 8のBlazor Web Appで「認証なし」テンプレートをベースにします。
+        - .NET 10へ移行しましたが、10のテンプレートを使用した場合の検証は行っていません。
     - Google OAuth認証を使用します。
         - `Microsoft.AspNetCore.Authentication.Google`を使います。
         - `Microsoft.AspNetCore.Identity`は使いません。
@@ -36,6 +37,7 @@ https://zenn.dev/link/articles/ad947ade600764
 ## プロジェクトの構成
 - VisualStudioで新規「Blazor Web App」プロジェクトを以下の構成で作ります。
     - フレームワークは`.NET 8.0`にします。
+        - .NET 10へ移行しましたが、10のテンプレートを使用した場合の検証は行っていません。
     - 認証の種類は「なし」にします。
     - デバッグ時のためにHTTPS用の構成にします。
     - `Interactive render mode`は`Auto(Server and WebAssembly)`にします。
@@ -65,12 +67,12 @@ https://zenn.dev/link/articles/ad947ade600764
     - なお、設定が有効になるまでの時間には、かなりのばらつきがあります。気長に待ちましょう。
 - `クライアント ID`と`クライアント シークレット`を取得します。
 
-https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-8.0
+https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/google-logins?view=aspnetcore-10.0
 
 ### シークレット・ストレージに格納
 - ストレージの実態は、`%APPDATA%\Microsoft\UserSecrets\<user_secrets_id>\secrets.json`の`<key>:<value>`です。
 
-https://learn.microsoft.com/ja-jp/aspnet/core/security/app-secrets?view=aspnetcore-8.0&tabs=windows#enable-secret-storage
+https://learn.microsoft.com/ja-jp/aspnet/core/security/app-secrets?view=aspnetcore-10.0&tabs=windows#enable-secret-storage
 
 #### ストレージの参照
 
@@ -204,7 +206,7 @@ app.UseAuthorization ();
 - OAuthのクライアント情報とメンバー情報は、構成マネージャから取得しています。
     - 情報の格納先は構成マネージャによって抽象化されます。
 
-https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/social-without-identity?view=aspnetcore-8.0
+https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/social-without-identity?view=aspnetcore-10.0
 
 ### ページの認可
 - 全てのページで認証を求めるために、`_Imports.razor`に以下を加えます。
@@ -234,11 +236,11 @@ https://learn.microsoft.com/ja-jp/aspnet/core/security/authentication/social/soc
 @attribute [AllowAnonymous]
 ```
 
-https://learn.microsoft.com/ja-jp/aspnet/core/blazor/security/?view=aspnetcore-8.0
+https://learn.microsoft.com/ja-jp/aspnet/core/blazor/security/?view=aspnetcore-10.0
 
-https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/policies?view=aspnetcore-8.0
+https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/policies?view=aspnetcore-10.0
 
-https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view=aspnetcore-8.0
+https://learn.microsoft.com/ja-jp/aspnet/core/security/authorization/simple?view=aspnetcore-10.0
 
 ### ポリシーによる選択的表示
 - サーバ側ページで次の要素を使用可能にします。
