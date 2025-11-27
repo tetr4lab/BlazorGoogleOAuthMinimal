@@ -15,4 +15,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.0" />
   </ItemGroup>
 
+    <Target Name="CustomAfterPublish" AfterTargets="AfterPublish">
+        <Exec Command="pwsh -File $(ProjectDir)deploy.ps1 $(ProjectName) $(OutputPath)" Condition="Exists('$(ProjectDir)deploy.ps1')" />
+    </Target>
+
 </Project>
